@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>Chart</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.5/dist/umd/popper.min.js" integrity="sha384-Xe+8cL9oJa6tN/veChSP7q+mnSPaj5Bcu9mPX5F5xIGE0DVittaqT5lorf0EI7Vk" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.min.js" integrity="sha384-ODmDIVzN+pFdexxHEHFBQH3/9/vQ9uori45z4JjnFsRydbmQbmL5t1tQ0culUzyK" crossorigin="anonymous"></script>
+<script nonce="undefined" src="https://cdn.zingchart.com/zingchart.min.js"></script>
+  <style>
+  :root {
+  --hContainer: 550px;
+  }
+  
+    .zc-html,
+    .zc-body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .chart--container {
+      height: 100%;
+      width: 100%;
+      min-height: var(--hContainer);
+    }
+
+    .zc-ref {
+      display: none;
+    }
+
+    select {
+      margin: 10px;
+    }
+  </style>
+</head>
+<body>
+	<div id="myChart" class="chart--container">
+		<div class="row" style="width:76%">
+			<div class="col">
+				<div class="form-floating" style="width:100%">
+				  <select id="tree-aspect" class="form-select">
+			        <option value="tree-right" selected>Right to left</option>
+			        <option value="tree-left">Left to right</option>
+			        <option value="tree-up">Bottom up</option>
+			        <option value="tree-down">Top Down</option>
+			        <option value="tree-radial">Circle</option>
+			      </select>
+				  <label for="tree-aspect">Layout</label>
+				</div>
+			</div>
+			<div class="col">
+				<div class="form-floating" style="width:100%">
+				  <select id="tree-node" class="form-select">
+			        <option value="arc" selected>Arc</option>
+			        <option value="line">Line</option>
+			        <option value="side-before">Side Before</option>
+			        <option value="side-after">Side After</option>
+			        <option value="side-between">Side Between</option>
+			        <option value="split">Split</option>
+			        <option value="sibling">Sibling</option>
+			      </select>
+			      <label for="tree-node">Node Connector Type</label>
+				</div>
+			</div>
+			<div class="col">
+				<div class="form-floating" style="width:100%">
+			      <select id="tree-node-shape" class="form-select">
+			        <option value="circle" selected>Circle</option>
+			        <option value="square">Square</option>
+			        <option value="diamond">Diamond</option>
+			        <option value="triangle">Triangle</option>
+			        <option value="star5">Star</option>
+			        <option value="star6">Star Type 2</option>
+			        <option value="star7">Star Type 3</option>
+			        <option value="star8">Star Type 4</option>
+			        <option value="rpoly5">Polygon</option>
+			        <option value="gear5">Gear</option>
+			        <option value="gear6">Gear 2</option>
+			        <option value="gear7">Gear 3</option>
+			        <option value="gear8">Gear 4</option>
+			      </select>
+			      <label for="tree-node-shape">Node Shape</label>
+				</div>
+			</div>
+			<div class="col">
+				<div class="form-floating" style="width:100%;height:100%;font-size:12px">
+				  <label for="hRange" class="form-label">Height:<span id="lRange"></span></label>
+				  <input type="range" class="form-range" min="550" max="4550" step="500" value="550" id="hRange">			      
+				</div>
+			</div>
+		</div>
+	  </div>
+	
+	<script th:inline="javascript">
+	/*<![CDATA[*/		
+	window.addEventListener('load', () => {
+      
+      let chartData = /*[[${ChartData}]]*/;
+      
+			let chartConfig = {
+				gui: {
+			        contextMenu: {
+			          backgroundColor: 'red',
+			          docked: true,
+			          position: 'left',
+			          item: {
+			            backgroundColor: 'pink',
+			            fontColor: 'black',
+			            hoverState: {
+			              backgroundColor: 'black',
+			              fontColor: 'white'
+			            }
+			          }
+			        }
+			      },
+			      graphset: [{
+				        type: 'tree',
+				        plot: {
+				          aspect: 'segmented',
+				          marker: {
+				            size: 4
+				          }
+				        },			        
+				        options: {
+				          link: {
+				            aspect: 'arc'
+				          },
+				          maxSize: 15,
+				          minSize: 5,
+				          node: {
+				            type: 'circle',
+				            tooltip: {
+				              padding: '8px 10px',
+				              borderRadius: '3px',
+				            },
+				            label: {
+				            	wrapText: false,
+				            	width: '140px',
+				            	height: '100px'
+				            }
+				          }
+				        },
+				        series: chartData
+				     }]
+		      };
+      		
+      		zingchart.render({
+		        id: 'myChart',
+		        data: chartConfig,
+		        height: '97%',
+		        width: '100%',
+		        output: 'canvas',
+		        autoResize: true
+		      });
+		      
+  		      // change tree layout
+		      document.getElementById('tree-aspect').addEventListener('change', function(e) {
+		        chartConfig.graphset[0].options.aspect = e.srcElement.value;
+		        zingchart.exec('myChart', 'setdata', {
+		          data: chartConfig
+		        });
+		      });
+		
+		      // change tree connector
+		      document.getElementById('tree-node').addEventListener('change', function(e) {
+		        chartConfig.graphset[0].options.link.aspect = e.srcElement.value;
+		        zingchart.exec('myChart', 'setdata', {
+		          data: chartConfig
+		        });
+		      });
+		
+		      // change node type
+		      document.getElementById('tree-node-shape').addEventListener('change', function(e) {
+		        chartConfig.graphset[0].options.node.type = e.srcElement.value;
+		        zingchart.exec('myChart', 'setdata', {
+		          data: chartConfig
+		        });
+		      });
+		      
+    });
+    
+    // Get the root element
+	var r = document.querySelector(':root');
+	
+	// Create a function for setting a variable value
+	function myFunction_set() {
+  		// Set the value of variable --hContainer to another value
+  		r.style.setProperty('--hContainer', '1000px');
+    }
+    
+    var slider = document.getElementById("hRange");
+	var output = document.getElementById("lRange");
+	output.innerHTML = slider.value.concat('px');
+	
+	slider.oninput = function() {
+	  output.innerHTML = this.value.concat('px');
+	  r.style.setProperty('--hContainer', this.value.concat('px'));
+    }
+    /*]]>*/
+	</script>
+</body>
+</html>
